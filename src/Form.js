@@ -5,7 +5,7 @@ class Form extends React.Component {
     super(props)
     this.state = {
       nombre: props.inicial
-    }
+        }
     this.onSubmit = this.onSubmit.bind(this)
   }
   onSubmit() {
