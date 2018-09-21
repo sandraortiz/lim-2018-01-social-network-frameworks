@@ -2,7 +2,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import App from './components/App';
+import App from './App';
 import registerServiceWorker from './registerServiceWorker';
 // rednderiza el componente App 
 //id del index.html
