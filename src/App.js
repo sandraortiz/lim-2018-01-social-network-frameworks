@@ -11,18 +11,15 @@ class App extends Component {
       email: '',
       password: '',
       user: null,
-      pictures: [] ,
- 
-    };
+      };
 // LOGIN Y REGISTER
     this.login = this.login.bind(this);
     this.handleChange = this.handleChange.bind(this);
     this.signup = this.signup.bind(this);
 //
     this.handleAuth = this.handleAuth.bind(this);
-    this.handleUpload = this.handleUpload.bind(this);
-  
-    this.handleAuthf  = this.handleAuthf.bind(this);
+    this.postsFirebase = this.postsFirebase.bind(this);
+   this.handleAuthf  = this.handleAuthf.bind(this);
   }
 
   handleChange(e) {
@@ -45,26 +42,14 @@ class App extends Component {
       })
   }
   
- 
-
-
   componentWillMount () {
-    // Cada vez que el método 'onAuthStateChanged' se dispara, recibe un objeto (user)
-    // Lo que hacemos es actualizar el estado con el contenido de ese objeto.
-    // Si el usuario se ha autenticado, el objeto tiene información.
-    // Si no, el usuario es 'null'
-    firebase.auth().onAuthStateChanged(user => {
+        firebase.auth().onAuthStateChanged(user => {
       this.setState({ user });
      this.userUpload({user})
       
     });
 
-    firebase.database().ref('pictures').on('child_added', snapshot => {
-      this.setState({
-        pictures: this.state.pictures.concat(snapshot.val())
-      });
-    });
-
+   
 
   }
 
@@ -98,23 +83,12 @@ class App extends Component {
   });
   }
    
-  handleUpload () {
-  
-     const dbRef = firebase.database().ref().child('pictures').push().key;
-      const record = {
-        photoURL: this.state.user.photoURL,
-        displayName: this.state.user.displayName,
-      body:this.state.posts ,
-        id :  this.state.user.uid 
-      }
-      const updates = {};
-      updates['/pictures/' + dbRef] = record;
-      updates['/user-pictures/' + this.state.user.uid + '/' + dbRef] = record;
-      return firebase.database().ref().update(updates);
+ postsFirebase() {
+ firebase.database().ref('pictures').on("child_added", newPosts => {
+    console.log(newPosts);
     
-   
-  }
-
+  });
+ } 
   renderLoginButton () {
     if (!this.state.user) {
       return (
@@ -147,36 +121,15 @@ class App extends Component {
           <button onClick={this.handleLogout} className="App-btn">
             Salir
           </button>
-         <userUpload />
-          <FileUpload onUpload={this.handleUpload}/>
-
-          {
-            this.state.pictures.map(picture => (
-              <div className="App-card">
-                <figure className="App-card-image">
-                  <img className="App-card-avatar"  src= {picture.image} alt = { "figuresuser"} />
-                
-                    <img className="App-card-avatar" src={picture.photoURL} alt={`${picture.displayName}`} />
-                    <span className="App-card-name">{picture.displayName}</span>
-
-                </figure>
-              </div>
-            )).reverse()
-          }
-
-        </div>
+           <FileUpload onUpload={this.postsFirebase}/>
+          </div>
 
       );
     }
   }
 
   render() {
-    return (
-      <div className="App">
-       
-        { this.renderLoginButton() }
-      </div>
-    );
+    return ( <div className="App"> { this.renderLoginButton() } </div>);
   }
 }
 

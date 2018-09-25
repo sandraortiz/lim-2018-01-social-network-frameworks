@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
-import firebase from 'firebase';
+import firebase from './firebase';
 import './App.css';
 import FileUpload from './FileUpload';
-
 
 class App extends Component {
   constructor () {
@@ -11,7 +10,8 @@ class App extends Component {
       email: '',
       password: '',
       user: null,
-      pictures: []
+      pictures: [] ,
+ 
     };
 // LOGIN Y REGISTER
     this.login = this.login.bind(this);
@@ -20,8 +20,7 @@ class App extends Component {
 //
     this.handleAuth = this.handleAuth.bind(this);
     this.handleUpload = this.handleUpload.bind(this);
-  
-    this.handleAuthf  = this.handleAuthf.bind(this);
+     this.handleAuthf  = this.handleAuthf.bind(this);
   }
 
   handleChange(e) {
@@ -97,34 +96,13 @@ class App extends Component {
   });
   }
    
-  handleUpload (event) {
-    const file = event.target.files[0];
-    const storageRef = firebase.storage().ref(`fotos/${file.name}`);
-    const task = storageRef.put(file);
-
-    // Listener que se ocupa del estado de la carga del fichero
-    task.on('state_changed', snapshot => {
-      // Calculamos el porcentaje de tamaño transferido y actualizamos
-      // el estado del componente con el valor
-      let percentage = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-      this.setState({
-        uploadValue: percentage
-      })
-    }, error => {
-      // Ocurre un error
-      console.error(error.message);
-    }, () => {
-      // Subida completada
-      // Obtenemos la URL del fichero almacenado en Firebase storage
-      // Obtenemos la referencia a nuestra base de datos 'pictures'
-      // Creamos un nuevo registro en ella
-      // Guardamos la URL del enlace en la DB
-      
-      const dbRef = firebase.database().ref().child('pictures').push().key;
+  handleUpload () {
+  
+     const dbRef = firebase.database().ref().child('pictures').push().key;
       const record = {
         photoURL: this.state.user.photoURL,
         displayName: this.state.user.displayName,
-   
+      body:this.state.posts ,
         id :  this.state.user.uid 
       }
       const updates = {};
@@ -132,7 +110,7 @@ class App extends Component {
       updates['/user-pictures/' + this.state.user.uid + '/' + dbRef] = record;
       return firebase.database().ref().update(updates);
     
-    });
+   
   }
 
   renderLoginButton () {
@@ -168,7 +146,7 @@ class App extends Component {
             Salir
           </button>
          <userUpload />
-          <FileUpload onUpload={ this.handleUpload }/>
+          <FileUpload onUpload={this.handleUpload}/>
 
           {
             this.state.pictures.map(picture => (
