@@ -1,53 +1,54 @@
 import React, { Component } from 'react';
 import firebase from './firebase'
-
-class FileUpload extends Component {
-  constructor () {
-    super();
-    this.state = {
-      email: ''
-    };
-    this.handleChange = this.handleChange.bind(this);
-    this.posts = this.posts.bind(this);
-  }
-
-
-  handleChange(e) {
-    this.setState({ [e.target.name]: e.target.value });
-  }
-
-  posts(e) {
-    e.preventDefault()
-    const currentUser = firebase.auth().currentUser;
-    const dbRef = firebase.database().ref().child('pictures').push().key;
-    const record = {
-      image: currentUser.photoURL,
-        author: currentUser.displayName,
-        uid: currentUser.uid,
-      photoURL: this.state.email,
-      
-    }
-    const updates = {};
-    updates['/pictures/' + dbRef] = record;
-    updates['/user-pictures/' + currentUser.uid + '/' + dbRef] = record;
-    return firebase.database().ref().update(updates);
-  }
+class App extends Component {
+  constructor(props) {
+   super(props);
+   this.state = { messages: [] };
+ }
  
-
-  render () {
-    return (
-    <form>
-      <div class = "form-group">
-         
-
-            <br/>
-            <input value={this.state.email} onChange={this.handleChange} type="email" name="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email" />
-            <button type="submit" onClick={this.posts} class="btn btn-primary">Login</button>
-          
-              </div>
-              </form>
-    )
+ componentWillMount(){
+  let messagesRef = fire.database().ref('posts').orderByKey();
+  messagesRef.on('child_added', snapshot => {
+  let message = { text:snapshot.val().text , id: snapshot.keyposts , author:snapshot.val().author };
+  this.setState({ messages: [message].concat(this.state.messages)
+  });
+ })
+ }
+ 
+ addMessage(e){
+   e.preventDefault();
+  
+   const currentUser = fire.auth().currentUser;
+     const dbRef = fire.database().ref().child('posts').push().key;
+     const record = {
+       image: currentUser.photoURL,
+         author: currentUser.displayName,
+         uid: currentUser.uid,
+       text: this.inputEl.value,
+       keyposts : dbRef
+     }
+     const updates = {};
+     updates['/posts/' + dbRef] = record;
+     updates['/user-posts/' + currentUser.uid + '/' + dbRef] = record;
+     return fire.database().ref().update(updates);
   }
-}
-
+  
+  render() {
+   return (
+    <form onSubmit={this.addMessage.bind(this)}>
+     <input type="text" ref={ el => this.inputEl = el }/>
+     <input type="submit"/>
+     
+      { 
+        this.state.messages.map( message =>
+         <div>
+              <p key={message.id}>{message.author}</p>     
+     <p key={message.id}>{message.text}</p>   
+            </div>
+         )
+      }
+   
+    </form>
+  );}}
+  
 export default FileUpload;

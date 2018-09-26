@@ -1,9 +1,6 @@
 import React, { Component } from 'react';
-import firebase from 'firebase';
+import firebase from './firebase';
 import './App.css';
-import FileUpload from './FileUpload';
-
-
 class App extends Component {
   constructor () {
     super();
@@ -11,14 +8,15 @@ class App extends Component {
       email: '',
       password: '',
       user: null,
-      };
+      messages: [] 
+         };
 // LOGIN Y REGISTER
     this.login = this.login.bind(this);
     this.handleChange = this.handleChange.bind(this);
     this.signup = this.signup.bind(this);
 //
     this.handleAuth = this.handleAuth.bind(this);
-    this.postsFirebase = this.postsFirebase.bind(this);
+    
    this.handleAuthf  = this.handleAuthf.bind(this);
   }
 
@@ -42,16 +40,35 @@ class App extends Component {
       })
   }
   
+  addMessage(e){
+    e.preventDefault();
+   
+    const currentUser = firebase.auth().currentUser;
+      const dbRef = firebase.database().ref().child('posts').push().key;
+      const record = {
+        image: currentUser.photoURL,
+          author: currentUser.displayName,
+          uid: currentUser.uid,
+        text: this.inputEl.value,
+        keyposts : dbRef
+      }
+      const updates = {};
+      updates['/posts/' + dbRef] = record;
+      updates['/user-posts/' + currentUser.uid + '/' + dbRef] = record;
+      return firebase.database().ref().update(updates);
+   }
   componentWillMount () {
         firebase.auth().onAuthStateChanged(user => {
       this.setState({ user });
      this.userUpload({user})
-      
-    });
-
-   
-
-  }
+      });
+     firebase.database().ref('posts').orderByKey().on('child_added', snapshot => {
+      let message = { text:snapshot.val().text , id: snapshot.keyposts , author:snapshot.val().author };
+      this.setState({ messages: [message].concat(this.state.messages)
+      });
+     })
+    
+    }
 
   handleAuth () {
     const provider = new firebase.auth.GoogleAuthProvider();
@@ -74,7 +91,6 @@ class App extends Component {
       .then(result => console.log(`${result.user.email} ha iniciado sesión`))
       .catch(error => console.log(`Error ${error.code}: ${error.message}`));
   }
-  
   userUpload() {
     firebase.database().ref('users/' + this.state.user.uid).set({
       username: this.state.user.displayName ,
@@ -83,12 +99,7 @@ class App extends Component {
   });
   }
    
- postsFirebase() {
- firebase.database().ref('pictures').on("child_added", newPosts => {
-    console.log(newPosts);
-    
-  });
- } 
+
   renderLoginButton () {
     if (!this.state.user) {
       return (
@@ -121,7 +132,22 @@ class App extends Component {
           <button onClick={this.handleLogout} className="App-btn">
             Salir
           </button>
-           <FileUpload onUpload={this.postsFirebase}/>
+          <userUpload />
+          <form onSubmit={this.addMessage.bind(this)}>
+    <input type="text" ref={ el => this.inputEl = el }/>
+    <input type="submit"/>
+    
+     { 
+       this.state.messages.map( message =>
+        <div>
+             <p key={message.id}>{message.author}</p>     
+    <p key={message.id}>{message.text}</p>   
+           </div>
+        )
+     }
+  
+   </form>
+
           </div>
 
       );
