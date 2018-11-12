@@ -5,8 +5,9 @@
   "homepage": "https://sandraortiz.github.io/lim-2018-01-social-network-frameworks",
   "dependencies": {
     "firebase": "^5.5.0",
+    "mdbreact": "^4.8.3",
     "react": "^16.5.0",
-    "react-bootstrap": "^0.32.4",
+
     "react-dom": "^16.5.0",
     "react-router-dom": "^4.3.1",
     "react-scripts": "1.1.5"
