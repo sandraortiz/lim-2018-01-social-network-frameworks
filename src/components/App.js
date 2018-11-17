@@ -1,7 +1,5 @@
 import React from 'react';
-import {BrowserRouter as Router,
-Route,
-} from 'react-router-dom';
+import { BrowserRouter as Router, Route} from 'react-router-dom';
 import Navigation from './Navigation';
 import SignUpPage from './SignUp';
 import SignInPage from './SignIn';
@@ -27,10 +25,10 @@ import * as routes from '../constants/routes';
         exact path={routes.SIGN_IN}
         component={SignInPage}
       />
-      <Route
+      {/* <Route
         exact path={routes.PASSWORD_FORGET}
         component={PasswordForgetPage}
-      />
+      /> */}
       <Route
         exact path={routes.WALL}
         component={WallPage}
