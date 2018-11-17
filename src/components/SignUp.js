@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Link,
     withRouter,
     } from 'react-router-dom';
-import { auth } from '../firebase/firebase';
+import { auth } from '../firebase/config';
 import * as routes from '../constants/routes';
 
 
@@ -20,7 +20,6 @@ const byPropKey = (propertyName, value) => () => ({
 const SignUpPage = ({history}) =>
     <div>
         <h1>SignUp</h1>
-        <SignUpForm />
         <SignUpForm history={history} />
 
     </div>
@@ -48,7 +47,7 @@ class SignUpForm extends Component {
         auth.doCreateUserWithEmailAndPassword(email, passwordOne)
             .then(authUser => {
                 this.setState({ ...INITIAL_STATE });
-                history.pushState(routes.WALL);
+                history.push(routes.WALL);
             })
             .catch(error => {
                 this.setState(byPropKey('error', error));
