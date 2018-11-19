@@ -5,10 +5,10 @@ import SignUpPage from './SignUp';
 import SignInPage from './SignIn';
 import WallPage from './Wall';
 import ProfilePage from './Profile';
-import PasswordForgetPage from './PasswordForget';
+import SignOut from './SignOut';
  
 import * as routes from '../constants/routes';
-import {firebase} from '../firebase/config'
+import withAuthentication from './withAuthentication';
 // import firebase from 'firebase';
 // import './App.css';
  class App extends Component{
@@ -19,18 +19,12 @@ import {firebase} from '../firebase/config'
    };
  }
 
- componentDidMount() {
-  firebase.auth.onAuthStateChanged(authUser => {
-    authUser
-      ? this.setState({ authUser })
-      : this.setState({ authUser: null });
-  });
-}
+
  render(){
    return (
     <Router>
     <div>
-    <Navigation/>
+    <Navigation authUser={this.state.authUser}/>
     <hr/>
 
     <Route
@@ -41,10 +35,7 @@ import {firebase} from '../firebase/config'
        exact path={routes.SIGN_IN}
        component={SignInPage}
      />
-     {/* <Route
-       exact path={routes.PASSWORD_FORGET}
-       component={PasswordForgetPage}
-     /> */}
+   
      <Route
        exact path={routes.WALL}
        component={WallPage}
@@ -53,6 +44,11 @@ import {firebase} from '../firebase/config'
        exact path={routes.PROFILE}
        component={ProfilePage}
      />
+     {/* <Route
+       exact path={routes.SIGN_IN}
+       component={SignOut}
+     />
+    */}
     </div>
     
   </Router>
